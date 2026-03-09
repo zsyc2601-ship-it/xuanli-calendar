@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>玄历 · 干支历法</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="backdrop"></div>
+    <main class="shell">
+      <section class="hero panel">
+        <div class="hero-copy">
+          <p class="eyebrow">Xuan Calendar</p>
+          <h1>玄历</h1>
+          <div class="hero-mobile-card">
+            <button id="calendarLauncherMobile" class="hero-date-trigger hero-date-trigger-mobile" type="button">
+              <span class="mini-label">公历月视图</span>
+              <strong id="heroDateMobile">--</strong>
+            </button>
+            <p id="heroLunarMobile" class="muted hero-lunar-inline">--</p>
+          </div>
+          <p id="heroMysticLunar" class="hero-intro">--</p>
+          <div class="hero-facts">
+            <p id="heroZodiac" class="hero-subline muted">--</p>
+            <p id="heroSign" class="hero-subline muted">--</p>
+            <p id="heroTerm" class="hero-subline muted">--</p>
+          </div>
+        </div>
+        <div class="hero-meta">
+          <button id="calendarLauncher" class="hero-date-trigger" type="button">
+            <span class="mini-label">公历月视图</span>
+            <strong id="heroDate">--</strong>
+          </button>
+          <p id="heroLunar" class="muted hero-lunar-desktop">--</p>
+        </div>
+      </section>
+
+      <section class="cards-grid">
+        <article class="panel stat-card">
+          <p class="section-tag">闰月展示</p>
+          <button id="lunarMonthsLauncher" class="card-link" type="button">--</button>
+          <p id="lunarLeapStatus" class="muted">--</p>
+        </article>
+
+        <article class="panel stat-card accent-card">
+          <p class="section-tag">值年卦</p>
+          <button id="hexagramCard" class="card-link" type="button">--</button>
+          <p id="hexagramMeta" class="muted">--</p>
+          <p id="hexagramCycle" class="muted">--</p>
+        </article>
+
+        <article class="panel stat-card">
+          <p class="section-tag">纪年</p>
+          <button id="emperorCard" class="card-link" type="button">--</button>
+          <p id="emperorEraCard" class="muted">--</p>
+          <p id="emperorNoteCard" class="muted">--</p>
+        </article>
+
+      </section>
+    </main>
+
+    <div id="dateNavModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-date-modal="true"></div>
+      <section class="modal-panel date-modal-panel" role="dialog" aria-modal="true" aria-labelledby="monthTitle">
+        <button id="closeDateNavModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
+        <div class="date-modal-head">
+          <div>
+            <p class="section-tag">公历月视图</p>
+            <h2 id="monthTitle">--</h2>
+          </div>
+          <div class="control-actions control-actions-inline">
+            <button id="jumpBtn" class="btn btn-primary">跳转</button>
+            <button id="todayBtn" class="btn">今天</button>
+          </div>
+        </div>
+        <div class="controls-panel modal-controls-panel">
+          <div class="controls-grid">
+            <label>
+              <span>纪年</span>
+              <select id="eraSelect">
+                <option value="ce">公元</option>
+                <option value="bce">公元前</option>
+              </select>
+            </label>
+            <label>
+              <span>年份</span>
+              <input id="yearInput" type="number" min="1" step="1" />
+            </label>
+            <label>
+              <span>月份</span>
+              <input id="monthInput" type="number" min="1" max="12" step="1" />
+            </label>
+            <label>
+              <span>日期</span>
+              <input id="dayInput" type="number" min="1" max="31" step="1" />
+            </label>
+          </div>
+          <div class="stepper-row">
+            <button class="btn" data-step="year" data-amount="-1">前一年</button>
+            <button class="btn" data-step="year" data-amount="1">后一年</button>
+            <button class="btn" data-step="month" data-amount="-1">前一月</button>
+            <button class="btn" data-step="month" data-amount="1">后一月</button>
+            <button class="btn" data-step="day" data-amount="-1">前一日</button>
+            <button class="btn" data-step="day" data-amount="1">后一日</button>
+          </div>
+        </div>
+        <div class="section-head modal-section-head">
+          <p class="muted">点日期可切换查看</p>
+        </div>
+        <div class="weekday-strip" id="weekdayStrip"></div>
+        <div class="calendar-grid" id="monthGrid"></div>
+      </section>
+    </div>
+
+    <div id="hexagramModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-modal="true"></div>
+      <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="hexagramModalTitle">
+        <button id="closeHexagramModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
+        <p class="section-tag">值年卦详情</p>
+        <h2 id="hexagramModalTitle">--</h2>
+        <div class="hexagram-modal-layout">
+          <div class="hexagram-sidebar">
+            <div class="hexagram-visual-wrap">
+              <div id="hexagramSymbol" class="hexagram-symbol"></div>
+              <div class="hexagram-meta text-card">
+                <p id="hexagramTrigrams" class="muted">--</p>
+                <p id="hexagramKeywords" class="muted">--</p>
+              </div>
+            </div>
+            <div class="modal-copy hexagram-copy text-card">
+              <p id="hexagramSummary">--</p>
+              <p id="hexagramReading" class="muted">--</p>
+            </div>
+          </div>
+          <div class="text-sections hexagram-text-sections">
+            <article class="text-card">
+              <h3>卦辞</h3>
+              <p id="hexagramJudgement" class="muted">--</p>
+            </article>
+            <article class="text-card">
+              <h3>彖辞</h3>
+              <p id="hexagramTuan" class="muted">--</p>
+            </article>
+            <article class="text-card">
+              <h3>象辞</h3>
+              <p id="hexagramXiang" class="muted">--</p>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="emperorModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-emperor-modal="true"></div>
+      <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="emperorModalTitle">
+        <button id="closeEmperorModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
+        <p class="section-tag">详情</p>
+        <h2 id="emperorModalTitle">--</h2>
+        <div class="emperor-meta-grid">
+          <article id="emperorLifeCard" class="text-card">
+            <h3>生卒</h3>
+            <p id="emperorLife" class="muted">--</p>
+          </article>
+          <article id="emperorReignCard" class="text-card">
+            <h3>在位</h3>
+            <p id="emperorReign" class="muted">--</p>
+          </article>
+          <article class="text-card">
+            <h3>年号</h3>
+            <p id="emperorEra" class="muted">--</p>
+          </article>
+        </div>
+        <div class="modal-copy">
+          <p id="emperorSummary">--</p>
+          <div class="text-sections emperor-sections">
+            <article class="text-card">
+              <h3>大事记</h3>
+              <ul id="emperorEvents" class="detail-list"></ul>
+            </article>
+            <article class="text-card">
+              <h3>战争与政局</h3>
+              <ul id="emperorWars" class="detail-list"></ul>
+            </article>
+            <article class="text-card">
+              <h3>灾异与治理压力</h3>
+              <ul id="emperorCalamities" class="detail-list"></ul>
+            </article>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="lunarMonthsModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-lunar-modal="true"></div>
+      <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="lunarYearTitle">
+        <button id="closeLunarMonthsModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
+        <p class="section-tag">农历月份结构</p>
+        <h2 id="lunarYearTitle">--</h2>
+        <p id="lunarLeapModalMeta" class="muted">闰月会单独列出</p>
+        <div id="lunarMonths" class="lunar-months"></div>
+      </section>
+    </div>
+
+    <script src="hexagram-originals.js"></script>
+    <script src="calendar-core.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+plugins {
+    id 'com.android.application'
+}
+
+def projectRootDir = rootProject.projectDir.parentFile
+def keystorePropertiesFile = new File(projectRootDir, 'keystore.properties')
+def keystoreProperties = new Properties()
+
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.withInputStream { stream ->
+        keystoreProperties.load(stream)
+    }
+}
+
+def resolveProjectRootFile = { String path ->
+    def candidate = new File(path)
+    candidate.isAbsolute() ? candidate : new File(projectRootDir, path)
+}
+
+android {
+    namespace 'com.xuanli.calendar'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.xuanli.calendar'
+        minSdk 24
+        targetSdk 34
+        versionCode 3
+        versionName '1.0.2'
+    }
+
+    signingConfigs {
+        release {
+            if (keystorePropertiesFile.exists()) {
+                storeFile resolveProjectRootFile(keystoreProperties.getProperty('storeFile'))
+                storePassword keystoreProperties.getProperty('storePassword')
+                keyAlias keystoreProperties.getProperty('keyAlias')
+                keyPassword keystoreProperties.getProperty('keyPassword')
+            }
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+        }
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+tasks.register('syncWebAssets', Copy) {
+    from(rootProject.projectDir.parentFile) {
+        include 'index.html'
+        include 'styles.css'
+        include 'app.js'
+        include 'calendar-core.js'
+        include 'hexagram-originals.js'
+    }
+    into(layout.projectDirectory.dir('src/main/assets/www'))
+}
+
+tasks.named('preBuild').configure {
+    dependsOn(tasks.named('syncWebAssets'))
+}
+
+tasks.register('copyReleaseApk') {
+    def releaseApk = layout.buildDirectory.file('outputs/apk/release/app-release.apk')
+    def rootApk = new File(projectRootDir, "xuanli-v${android.defaultConfig.versionName}-release-signed.apk")
+
+    inputs.file(releaseApk)
+    outputs.file(rootApk)
+
+    doLast {
+        copy {
+            from(releaseApk)
+            into(projectRootDir)
+            rename { rootApk.name }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.named('assembleRelease').configure {
+        finalizedBy(tasks.named('copyReleaseApk'))
+    }
+}

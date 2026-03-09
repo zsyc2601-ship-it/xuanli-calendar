@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:bottom="16dp"
+        android:drawable="@drawable/ic_logo_monochrome_ring"
+        android:left="16dp"
+        android:right="16dp"
+        android:top="16dp" />
+
+    <item
+        android:bottom="44dp"
+        android:drawable="@drawable/ic_logo_monochrome_disc"
+        android:left="22dp"
+        android:right="42dp"
+        android:top="22dp" />
+
+    <item
+        android:bottom="44dp"
+        android:drawable="@drawable/ic_logo_monochrome_cut"
+        android:left="48dp"
+        android:right="18dp"
+        android:top="22dp" />
+
+    <item
+        android:bottom="42dp"
+        android:drawable="@drawable/ic_logo_monochrome_disc"
+        android:left="68dp"
+        android:right="18dp"
+        android:top="28dp" />
+
+    <item
+        android:bottom="30dp"
+        android:drawable="@drawable/ic_logo_monochrome_bar"
+        android:left="28dp"
+        android:right="28dp"
+        android:top="66dp" />
+
+    <item
+        android:bottom="18dp"
+        android:drawable="@drawable/ic_logo_monochrome_bar_short"
+        android:left="28dp"
+        android:right="52dp"
+        android:top="78dp" />
+
+    <item
+        android:bottom="18dp"
+        android:drawable="@drawable/ic_logo_monochrome_bar_short"
+        android:left="52dp"
+        android:right="28dp"
+        android:top="78dp" />
+
+    <item
+        android:bottom="6dp"
+        android:drawable="@drawable/ic_logo_monochrome_bar"
+        android:left="28dp"
+        android:right="28dp"
+        android:top="90dp" />
+</layer-list>
