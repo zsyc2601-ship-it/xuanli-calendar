@@ -9,13 +9,31 @@
   <body>
     <div class="backdrop"></div>
     <main class="shell">
+      <div class="locale-wrap">
+        <button id="localeTrigger" class="locale-trigger" type="button">🇨🇳</button>
+        <div id="localePanel" class="locale-panel hidden">
+          <p class="locale-group-label">History</p>
+          <div class="locale-options" id="countryOptions">
+            <button class="locale-opt active" data-country="cn">🇨🇳 中国</button>
+            <button class="locale-opt" data-country="us">🇺🇸 USA</button>
+            <button class="locale-opt" data-country="uk">🇬🇧 UK</button>
+            <button class="locale-opt" data-country="jp">🇯🇵 日本</button>
+          </div>
+          <p class="locale-group-label">Language</p>
+          <div class="locale-options" id="langOptions">
+            <button class="locale-opt active" data-lang="zh">中文</button>
+            <button class="locale-opt" data-lang="en">EN</button>
+            <button class="locale-opt" data-lang="ja">日本語</button>
+          </div>
+        </div>
+      </div>
       <section class="hero panel">
         <div class="hero-copy">
-          <p class="eyebrow">Xuan Calendar</p>
-          <h1>玄历</h1>
+          <p class="eyebrow" data-i18n="appSubtitle">Xuan Calendar</p>
+          <h1 data-i18n="appName">玄历</h1>
           <div class="hero-mobile-card">
             <button id="calendarLauncherMobile" class="hero-date-trigger hero-date-trigger-mobile" type="button">
-              <span class="mini-label">公历月视图</span>
+              <span class="mini-label" data-i18n="solarMonthView">公历月视图</span>
               <strong id="heroDateMobile">--</strong>
             </button>
             <p id="heroLunarMobile" class="muted hero-lunar-inline">--</p>
@@ -29,7 +47,7 @@
         </div>
         <div class="hero-meta">
           <button id="calendarLauncher" class="hero-date-trigger" type="button">
-            <span class="mini-label">公历月视图</span>
+            <span class="mini-label" data-i18n="solarMonthView">公历月视图</span>
             <strong id="heroDate">--</strong>
           </button>
           <p id="heroLunar" class="muted hero-lunar-desktop">--</p>
@@ -38,75 +56,97 @@
 
       <section class="cards-grid">
         <article class="panel stat-card">
-          <p class="section-tag">闰月展示</p>
+          <p class="section-tag" data-i18n="leapMonthLabel">闰月展示</p>
           <button id="lunarMonthsLauncher" class="card-link" type="button">--</button>
           <p id="lunarLeapStatus" class="muted">--</p>
         </article>
 
         <article class="panel stat-card accent-card">
-          <p class="section-tag">值年卦</p>
+          <p class="section-tag" data-i18n="yearHexagram">值年卦</p>
           <button id="hexagramCard" class="card-link" type="button">--</button>
           <p id="hexagramMeta" class="muted">--</p>
           <p id="hexagramCycle" class="muted">--</p>
         </article>
 
         <article class="panel stat-card">
-          <p class="section-tag">纪年</p>
+          <p class="section-tag" data-i18n="chronology">纪年</p>
           <button id="emperorCard" class="card-link" type="button">--</button>
           <p id="emperorEraCard" class="muted">--</p>
           <p id="emperorNoteCard" class="muted">--</p>
         </article>
 
       </section>
+
+      <footer class="app-footer">
+        <button id="aboutBtn" class="footer-link" type="button" data-i18n="aboutUs">关于我们</button>
+      </footer>
+
+      <section class="disclaimer-inline">
+        <p class="disclaimer-text" data-i18n="disclaimerText1">本应用提供的干支历法、农历、节气、卦象及历史纪年信息仅供文化学习与参考之用，不构成任何形式的决策建议。</p>
+        <p class="disclaimer-text" data-i18n="disclaimerText3">卦象解读基于《周易》传统，仅为文化参考，不应作为医疗、投资、法律等专业领域的依据。</p>
+        <p class="disclaimer-text" data-i18n="disclaimerText5">使用本应用即表示您理解并同意以上条款。开发者不对因使用本应用产生的任何后果承担责任。</p>
+      </section>
     </main>
+
+    <div id="aboutModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-about="true"></div>
+      <section class="modal-panel" role="dialog" aria-modal="true">
+        <button id="closeAboutModal" class="modal-close" type="button" aria-label="关闭" data-i18n="close">关闭</button>
+        <p class="section-tag" data-i18n="aboutUs">关于我们</p>
+        <h2>玄历 · Xuan Calendar</h2>
+        <div class="about-body">
+          <p class="muted" data-i18n="aboutDesc">玄历是一款开源的干支历法工具，融合中国传统历法、皇极经世卦象与多国历史纪年，帮助用户在日期与时间中发现更深层的文化脉络。</p>
+          <div class="text-card about-donate">
+            <h3 data-i18n="donateTitle">支持开发</h3>
+            <p class="muted" data-i18n="donateDesc">如果玄历对你有帮助，欢迎通过以下方式支持我们持续开发：</p>
+            <p class="donate-addr"><span class="donate-label">USDT (TRC20):</span><code id="walletAddr">TAeABo9shh83RpYWw1PkrdZEFaSHDUYKLk</code><button class="copy-btn" id="copyWalletBtn" type="button" data-i18n="copy">复制</button></p>
+          </div>
+          <div class="text-card">
+            <h3 data-i18n="openSource">开源</h3>
+            <p class="muted">GitHub: <a href="https://github.com/AerfaDr/xuanli-calendar" target="_blank" rel="noopener">xuanli-calendar</a></p>
+          </div>
+        </div>
+      </section>
+    </div>
 
     <div id="dateNavModal" class="modal hidden" aria-hidden="true">
       <div class="modal-backdrop" data-close-date-modal="true"></div>
       <section class="modal-panel date-modal-panel" role="dialog" aria-modal="true" aria-labelledby="monthTitle">
-        <button id="closeDateNavModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
+        <button id="closeDateNavModal" class="modal-close" type="button" aria-label="关闭" data-i18n="close">关闭</button>
         <div class="date-modal-head">
           <div>
-            <p class="section-tag">公历月视图</p>
+            <p class="section-tag" data-i18n="solarMonthView">公历月视图</p>
             <h2 id="monthTitle">--</h2>
           </div>
           <div class="control-actions control-actions-inline">
-            <button id="jumpBtn" class="btn btn-primary">跳转</button>
-            <button id="todayBtn" class="btn">今天</button>
+            <button id="todayBtn" class="btn btn-primary" data-i18n="today">今天</button>
           </div>
         </div>
         <div class="controls-panel modal-controls-panel">
           <div class="controls-grid">
             <label>
-              <span>纪年</span>
+              <span data-i18n="eraLabel">纪年</span>
               <select id="eraSelect">
-                <option value="ce">公元</option>
-                <option value="bce">公元前</option>
+                <option value="ce" data-i18n="eraCE">公元</option>
+                <option value="bce" data-i18n="eraBCE">公元前</option>
               </select>
             </label>
             <label>
-              <span>年份</span>
+              <span data-i18n="yearLabel">年份</span>
               <input id="yearInput" type="number" min="1" step="1" />
             </label>
             <label>
-              <span>月份</span>
+              <span data-i18n="monthLabel">月份</span>
               <input id="monthInput" type="number" min="1" max="12" step="1" />
             </label>
             <label>
-              <span>日期</span>
+              <span data-i18n="dayLabel">日期</span>
               <input id="dayInput" type="number" min="1" max="31" step="1" />
             </label>
           </div>
-          <div class="stepper-row">
-            <button class="btn" data-step="year" data-amount="-1">前一年</button>
-            <button class="btn" data-step="year" data-amount="1">后一年</button>
-            <button class="btn" data-step="month" data-amount="-1">前一月</button>
-            <button class="btn" data-step="month" data-amount="1">后一月</button>
-            <button class="btn" data-step="day" data-amount="-1">前一日</button>
-            <button class="btn" data-step="day" data-amount="1">后一日</button>
-          </div>
         </div>
         <div class="section-head modal-section-head">
-          <p class="muted">点日期可切换查看</p>
+          <p class="muted" data-i18n="clickToSwitch">点日期可切换查看</p>
         </div>
         <div class="weekday-strip" id="weekdayStrip"></div>
         <div class="calendar-grid" id="monthGrid"></div>
@@ -116,8 +156,8 @@
     <div id="hexagramModal" class="modal hidden" aria-hidden="true">
       <div class="modal-backdrop" data-close-modal="true"></div>
       <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="hexagramModalTitle">
-        <button id="closeHexagramModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
-        <p class="section-tag">值年卦详情</p>
+        <button id="closeHexagramModal" class="modal-close" type="button" aria-label="关闭" data-i18n="close">关闭</button>
+        <p class="section-tag" data-i18n="hexagramDetail">值年卦详情</p>
         <h2 id="hexagramModalTitle">--</h2>
         <div class="hexagram-modal-layout">
           <div class="hexagram-sidebar">
@@ -135,15 +175,15 @@
           </div>
           <div class="text-sections hexagram-text-sections">
             <article class="text-card">
-              <h3>卦辞</h3>
+              <h3 data-i18n="judgementLabel">卦辞</h3>
               <p id="hexagramJudgement" class="muted">--</p>
             </article>
             <article class="text-card">
-              <h3>彖辞</h3>
+              <h3 data-i18n="tuanLabel">彖辞</h3>
               <p id="hexagramTuan" class="muted">--</p>
             </article>
             <article class="text-card">
-              <h3>象辞</h3>
+              <h3 data-i18n="xiangLabel">象辞</h3>
               <p id="hexagramXiang" class="muted">--</p>
             </article>
           </div>
@@ -154,20 +194,20 @@
     <div id="emperorModal" class="modal hidden" aria-hidden="true">
       <div class="modal-backdrop" data-close-emperor-modal="true"></div>
       <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="emperorModalTitle">
-        <button id="closeEmperorModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
-        <p class="section-tag">详情</p>
+        <button id="closeEmperorModal" class="modal-close" type="button" aria-label="关闭" data-i18n="close">关闭</button>
+        <p class="section-tag" data-i18n="leaderDetail">详情</p>
         <h2 id="emperorModalTitle">--</h2>
         <div class="emperor-meta-grid">
           <article id="emperorLifeCard" class="text-card">
-            <h3>生卒</h3>
+            <h3 data-i18n="lifespanLabel">生卒</h3>
             <p id="emperorLife" class="muted">--</p>
           </article>
           <article id="emperorReignCard" class="text-card">
-            <h3>在位</h3>
+            <h3 data-i18n="reignLabel">在位</h3>
             <p id="emperorReign" class="muted">--</p>
           </article>
           <article class="text-card">
-            <h3>年号</h3>
+            <h3 data-i18n="eraNameLabel">年号</h3>
             <p id="emperorEra" class="muted">--</p>
           </article>
         </div>
@@ -175,15 +215,15 @@
           <p id="emperorSummary">--</p>
           <div class="text-sections emperor-sections">
             <article class="text-card">
-              <h3>大事记</h3>
+              <h3 data-i18n="majorEvents">大事记</h3>
               <ul id="emperorEvents" class="detail-list"></ul>
             </article>
             <article class="text-card">
-              <h3>战争与政局</h3>
+              <h3 data-i18n="warsAndPolitics">战争与政局</h3>
               <ul id="emperorWars" class="detail-list"></ul>
             </article>
             <article class="text-card">
-              <h3>灾异与治理压力</h3>
+              <h3 data-i18n="crisesAndPressure">灾异与治理压力</h3>
               <ul id="emperorCalamities" class="detail-list"></ul>
             </article>
           </div>
@@ -194,16 +234,22 @@
     <div id="lunarMonthsModal" class="modal hidden" aria-hidden="true">
       <div class="modal-backdrop" data-close-lunar-modal="true"></div>
       <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="lunarYearTitle">
-        <button id="closeLunarMonthsModal" class="modal-close" type="button" aria-label="关闭">关闭</button>
-        <p class="section-tag">农历月份结构</p>
+        <button id="closeLunarMonthsModal" class="modal-close" type="button" aria-label="关闭" data-i18n="close">关闭</button>
+        <p class="section-tag" data-i18n="lunarMonthStructure">农历月份结构</p>
         <h2 id="lunarYearTitle">--</h2>
-        <p id="lunarLeapModalMeta" class="muted">闰月会单独列出</p>
+        <p id="lunarLeapModalMeta" class="muted" data-i18n="leapMonthSingle">闰月会单独列出</p>
         <div id="lunarMonths" class="lunar-months"></div>
       </section>
     </div>
 
     <script src="hexagram-originals.js"></script>
+    <script src="hexagram-i18n.js"></script>
     <script src="calendar-core.js"></script>
+    <script src="i18n.js"></script>
+    <script src="history-i18n.js"></script>
+    <script src="history-us.js"></script>
+    <script src="history-uk.js"></script>
+    <script src="history-jp.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

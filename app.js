@@ -3783,7 +3783,6 @@
   const yearInput = document.getElementById("yearInput");
   const monthInput = document.getElementById("monthInput");
   const dayInput = document.getElementById("dayInput");
-  const jumpBtn = document.getElementById("jumpBtn");
   const todayBtn = document.getElementById("todayBtn");
   const calendarLauncher = document.getElementById("calendarLauncher");
   const calendarLauncherMobile = document.getElementById("calendarLauncherMobile");
@@ -3797,6 +3796,105 @@
   const closeEmperorModalBtn = document.getElementById("closeEmperorModal");
   const emperorLifeCard = document.getElementById("emperorLifeCard");
   const emperorReignCard = document.getElementById("emperorReignCard");
+  const localeTrigger = document.getElementById("localeTrigger");
+  const localePanel = document.getElementById("localePanel");
+  const countryOptions = document.getElementById("countryOptions");
+  const langOptions = document.getElementById("langOptions");
+  const aboutModal = document.getElementById("aboutModal");
+
+  var _countryDetailLibrary = EMPEROR_DETAIL_LIBRARY;
+  var _countryDynastyLibrary = DYNASTY_DETAIL_LIBRARY;
+
+  var HISTORY_MAP = {
+    us: function () { return window.XUAN_HISTORY_US; },
+    uk: function () { return window.XUAN_HISTORY_UK; },
+    jp: function () { return window.XUAN_HISTORY_JP; }
+  };
+
+  function t(key) {
+    return window.XuanI18n ? window.XuanI18n.t(key) : key;
+  }
+
+  function getHexagramI18n(name) {
+    var lang = window.XuanI18n ? window.XuanI18n.getLang() : "zh";
+    if (lang === "zh") return {};
+    var map = window.XUAN_HEXAGRAM_I18N;
+    if (!map || !map[lang] || !map[lang][name]) return {};
+    return map[lang][name];
+  }
+
+  function th(text, category) {
+    var i18nMap = window.XUAN_HISTORY_I18N;
+    if (!i18nMap) return text;
+    var country = window.XuanI18n ? window.XuanI18n.getCountry() : "cn";
+    var lang = window.XuanI18n ? window.XuanI18n.getLang() : "zh";
+    var countryData = i18nMap[country];
+    if (!countryData) return text;
+    var langData = countryData[lang];
+    if (!langData) return text;
+    var dict = langData[category];
+    if (!dict) return text;
+    return dict[text] || text;
+  }
+
+  function translateReign(snapshot) {
+    return {
+      title: th(snapshot.reign.title, "rulers"),
+      subtitle: translateSubtitle(snapshot.reign.subtitle),
+      dynasty: th(snapshot.reign.dynasty, "dynasties"),
+      dynastyLabel: th(snapshot.dynasty.label, "dynasties"),
+      dynastyYearText: translateSubtitle(snapshot.dynasty.yearText)
+    };
+  }
+
+  function translateSubtitle(text) {
+    if (!text) return text;
+    var parts = text.split(" · ");
+    return parts.map(function (p) {
+      var t1 = th(p, "eraNames");
+      if (t1 !== p) return t1;
+      return th(p, "dynasties");
+    }).join(" · ");
+  }
+
+  function applyI18n() {
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      var key = el.getAttribute("data-i18n");
+      var val = t(key);
+      if (val !== key) {
+        el.textContent = val;
+      }
+    });
+  }
+
+  var FLAG_MAP = { cn: "🇨🇳", us: "🇺🇸", uk: "🇬🇧", jp: "🇯🇵" };
+
+  function switchCountry(countryId) {
+    if (countryId === "cn") {
+      window.XuanCalendar.resetCountryData();
+      _countryDetailLibrary = EMPEROR_DETAIL_LIBRARY;
+      _countryDynastyLibrary = DYNASTY_DETAIL_LIBRARY;
+    } else {
+      var getter = HISTORY_MAP[countryId];
+      var data = getter ? getter() : null;
+      if (data) {
+        window.XuanCalendar.setCountryData(data.reignPeriods, data.reignConfig);
+        _countryDetailLibrary = data.detailLibrary || {};
+        _countryDynastyLibrary = data.dynastyDetailLibrary || {};
+      }
+    }
+
+    if (window.XuanI18n) window.XuanI18n.setCountry(countryId);
+    if (localeTrigger) localeTrigger.textContent = FLAG_MAP[countryId] || "🌐";
+    applyI18n();
+    render();
+  }
+
+  function switchLang(lang) {
+    if (window.XuanI18n) window.XuanI18n.setLang(lang);
+    applyI18n();
+    render();
+  }
 
   let activeHexagramDetail = null;
   let activeEmperorDetail = null;
@@ -3931,10 +4029,10 @@
     }
 
     const config = [
-      { label: "年柱", value: snapshot.pillars.year.text, hint: "立春分年" },
-      { label: "月柱", value: snapshot.pillars.month.text, hint: "节气分月" },
-      { label: "日柱", value: snapshot.pillars.day.text, hint: "23:00 后按次日" },
-      { label: "时柱", value: snapshot.pillars.hour.text + "时", hint: snapshot.pillars.hour.range },
+      { label: t("pillarYear"), value: snapshot.pillars.year.text, hint: t("pillarYearHint") },
+      { label: t("pillarMonth"), value: snapshot.pillars.month.text, hint: t("pillarMonthHint") },
+      { label: t("pillarDay"), value: snapshot.pillars.day.text, hint: t("pillarDayHint") },
+      { label: t("pillarHour"), value: snapshot.pillars.hour.text + t("hourSuffix"), hint: snapshot.pillars.hour.range },
     ];
 
     pillarsContainer.innerHTML = config
@@ -3950,8 +4048,9 @@
   }
 
   function renderMonthGrid(snapshot) {
-    weekdayStrip.innerHTML = ["日", "一", "二", "三", "四", "五", "六"]
-      .map((day) => "<span>周" + day + "</span>")
+    var wds = t("weekdays");
+    weekdayStrip.innerHTML = (Array.isArray(wds) ? wds : ["日", "一", "二", "三", "四", "五", "六"])
+      .map(function (day) { return "<span>" + day + "</span>"; })
       .join("");
 
     monthGrid.innerHTML = snapshot.monthCalendar
@@ -3972,20 +4071,24 @@
   }
 
   function getEmperorDetail(snapshot) {
-    const libraryItem = EMPEROR_DETAIL_LIBRARY[snapshot.reign.title];
+    var na = t("noData");
+    var detailLib = _countryDetailLibrary || EMPEROR_DETAIL_LIBRARY;
+    var dynastyLib = _countryDynastyLibrary || DYNASTY_DETAIL_LIBRARY;
+
+    const libraryItem = detailLib[snapshot.reign.title];
     if (libraryItem) {
       const detail = Object.assign({ title: snapshot.reign.title, showRuler: true }, libraryItem);
-      detail.events = applyTimelinePeriods(detail.title, detail.events || ["暂无"], "events");
-      detail.wars = applyTimelinePeriods(detail.title, detail.wars || ["暂无"], "wars");
-      detail.calamities = applyTimelinePeriods(detail.title, detail.calamities || ["暂无"], "calamities");
+      detail.events = applyTimelinePeriods(detail.title, detail.events || [na], "events");
+      detail.wars = applyTimelinePeriods(detail.title, detail.wars || [na], "wars");
+      detail.calamities = applyTimelinePeriods(detail.title, detail.calamities || [na], "calamities");
       return detail;
     }
 
-    const dynastyItem = DYNASTY_DETAIL_LIBRARY[snapshot.reign.dynasty];
+    const dynastyItem = dynastyLib[snapshot.reign.dynasty];
     if (dynastyItem) {
       return {
         title: snapshot.reign.title,
-        lifespan: snapshot.reign.showRuler ? "生卒年待补充" : "暂无",
+        lifespan: snapshot.reign.showRuler ? na : na,
         reign: snapshot.reign.subtitle,
         era: snapshot.dynasty.label,
         summary: dynastyItem.summary,
@@ -3998,14 +4101,14 @@
 
     return {
       title: snapshot.reign.title,
-      lifespan: snapshot.reign.showRuler ? "生卒年待补充" : "暂无",
+      lifespan: snapshot.reign.showRuler ? na : na,
       reign: snapshot.reign.subtitle,
       era: snapshot.dynasty.label,
-      summary: getDisplayNote(snapshot.reign.note),
+      summary: getDisplayNote(snapshot.reign.note) || na,
       showRuler: snapshot.reign.showRuler,
-      events: ["暂无"],
-      wars: ["暂无"],
-      calamities: ["暂无"],
+      events: [na],
+      wars: [na],
+      calamities: [na],
     };
   }
 
@@ -4160,14 +4263,15 @@
     }
 
     activeHexagramDetail = detail;
-    setText("hexagramModalTitle", detail.name + "卦");
-    setText("hexagramTrigrams", "上卦 " + detail.upper + " · 下卦 " + detail.lower);
-    setText("hexagramKeywords", "关键词：" + detail.keywords);
-    setText("hexagramSummary", detail.summary);
-    setText("hexagramReading", "解读：" + detail.reading);
-    setText("hexagramJudgement", "原文加载中...");
-    setText("hexagramTuan", "原文加载中...");
-    setText("hexagramXiang", "原文加载中...");
+    var hexI18n = getHexagramI18n(detail.name);
+    setText("hexagramModalTitle", detail.name + t("hexagramSuffix"));
+    setText("hexagramTrigrams", t("upperTrigram") + " " + detail.upper + " · " + t("lowerTrigram") + " " + detail.lower);
+    setText("hexagramKeywords", t("keywordsLabel") + (hexI18n.keywords || detail.keywords));
+    setText("hexagramSummary", hexI18n.summary || detail.summary);
+    setText("hexagramReading", t("readingLabel") + (hexI18n.reading || detail.reading));
+    setText("hexagramJudgement", t("loadingText"));
+    setText("hexagramTuan", t("loadingText"));
+    setText("hexagramXiang", t("loadingText"));
 
     document.getElementById("hexagramSymbol").innerHTML = detail.lines
       .slice()
@@ -4182,9 +4286,9 @@
         return;
       }
       if (!original) {
-        setText("hexagramJudgement", "本地卦辞暂缺。");
-        setText("hexagramTuan", "本地彖辞暂缺。");
-        setText("hexagramXiang", "本地象辞暂缺。");
+        setText("hexagramJudgement", t("noOriginalText"));
+        setText("hexagramTuan", t("noOriginalText"));
+        setText("hexagramXiang", t("noOriginalText"));
         return;
       }
       setText("hexagramJudgement", original.judgement);
@@ -4216,12 +4320,12 @@
     hexagramModal.setAttribute("aria-hidden", "true");
   }
 
-  function renderEmperorDetail(detail) {
+  function renderEmperorDetail(detail, tr) {
     activeEmperorDetail = detail;
-    setText("emperorModalTitle", detail.title);
+    setText("emperorModalTitle", tr ? tr.title : detail.title);
     setText("emperorLife", detail.lifespan);
     setText("emperorReign", detail.reign);
-    setText("emperorEra", detail.era);
+    setText("emperorEra", tr ? tr.dynastyLabel : detail.era);
     setText("emperorSummary", detail.summary);
     emperorLifeCard.classList.toggle("hidden-card", !detail.showRuler);
     emperorReignCard.classList.toggle("hidden-card", !detail.showRuler);
@@ -4253,51 +4357,69 @@
     lunarMonthsModal.setAttribute("aria-hidden", "true");
   }
 
+  function yearHasLeapMonth(sequence) {
+    return sequence.some(function (item) { return item.monthText && item.monthText.indexOf("闰") !== -1; });
+  }
+
   function renderLunarMonths(snapshot) {
+    var hasLeap = yearHasLeapMonth(snapshot.lunarMonthSequence);
+    if (!hasLeap) {
+      lunarMonthsContainer.innerHTML = '<p class="muted" style="padding:12px 0;">' + t("noLeapMonthThisYear") + '</p>';
+      return;
+    }
     lunarMonthsContainer.innerHTML = snapshot.lunarMonthSequence
       .map(
-        (item) =>
-          '<article class="month-chip">' +
-          "<strong>" + item.monthText + "</strong>" +
-          "<span>起于 " + item.gregorianText + "</span>" +
-          "</article>"
+        function (item) {
+          var isLeap = item.monthText && item.monthText.indexOf("闰") !== -1;
+          return '<article class="month-chip' + (isLeap ? ' leap-highlight' : '') + '">' +
+            "<strong>" + item.monthText + "</strong>" +
+            "<span>" + t("startFrom") + item.gregorianText + "</span>" +
+            "</article>";
+        }
       )
       .join("");
   }
 
   function render() {
     const snapshot = window.XuanCalendar.buildSnapshot(getSelectedDate());
+    var hourStr = String(snapshot.selectedDate.getHours()).padStart(2, "0") + t("hourSuffix");
 
-    setText("heroDate", snapshot.solarText + " · " + String(snapshot.selectedDate.getHours()).padStart(2, "0") + "时");
-    setText("heroDateMobile", snapshot.solarText + " · " + String(snapshot.selectedDate.getHours()).padStart(2, "0") + "时");
+    setText("heroDate", snapshot.solarText + " · " + hourStr);
+    setText("heroDateMobile", snapshot.solarText + " · " + hourStr);
     setHTML("heroMysticLunar", renderMysticLunarMarkup(snapshot));
-    setText("heroZodiac", "生肖 " + snapshot.yearZodiac.icon + " " + snapshot.yearZodiac.name);
-    setText("heroSign", "星座 " + snapshot.westernSign.icon + " " + snapshot.westernSign.name + " · " + formatSignRange(snapshot.westernSign));
+    setText("heroZodiac", t("zodiacPrefix") + snapshot.yearZodiac.icon + " " + snapshot.yearZodiac.name);
+    setText("heroSign", t("signPrefix") + snapshot.westernSign.icon + " " + snapshot.westernSign.name + " · " + formatSignRange(snapshot.westernSign));
     setText(
       "heroTerm",
-      (snapshot.terms.todayIsTerm ? "今日节气 " : "当前节气 ") +
+      (snapshot.terms.todayIsTerm ? t("termToday") : t("termCurrent")) +
         snapshot.terms.current.name +
-        "\n下一节气 " +
+        t("termNext") +
         window.XuanCalendar.formatTerm(snapshot.terms.next)
     );
     setHTML("heroLunar", renderLunarDateMarkup(snapshot));
     setHTML("heroLunarMobile", renderLunarDateMarkup(snapshot));
-    setText("lunarMonthsLauncher", snapshot.lunar.yearName + "年（" + snapshot.lunar.relatedYear + "）");
-    setText("lunarLeapStatus", snapshot.lunar.isLeapMonth ? "当前月为闰月 · " + snapshot.lunar.monthText : "当前月不是闰月 · " + snapshot.lunar.monthText);
-    setText("lunarLeapModalMeta", snapshot.lunar.isLeapMonth ? "当前选中月份为闰月" : "当前选中月份不是闰月");
-    hexagramCard.textContent = snapshot.yearHexagram.value + "卦";
+    var _hasLeap = yearHasLeapMonth(snapshot.lunarMonthSequence);
+    var _leapName = "";
+    if (_hasLeap) {
+      snapshot.lunarMonthSequence.forEach(function (m) { if (m.monthText && m.monthText.indexOf("闰") !== -1) _leapName = m.monthText; });
+    }
+    setText("lunarMonthsLauncher", _hasLeap ? _leapName + "（" + snapshot.lunar.relatedYear + "）" : snapshot.lunar.yearName + t("yearSuffix") + "（" + snapshot.lunar.relatedYear + "）");
+    setText("lunarLeapStatus", _hasLeap ? t("isLeapMonth") + _leapName : t("noLeapMonthThisYear"));
+    setText("lunarLeapModalMeta", _hasLeap ? t("isLeapMonthModal") : t("noLeapMonthThisYear"));
+    hexagramCard.textContent = snapshot.yearHexagram.value + t("hexagramSuffix");
     renderHexagramDetail(snapshot.yearHexagramDetail);
-    setText("hexagramMeta", "世卦 " + snapshot.yearHexagram.shiHexagram + " · 运卦 " + snapshot.yearHexagram.yunHexagram);
+    setText("hexagramMeta", t("shiHexagram") + " " + snapshot.yearHexagram.shiHexagram + " · " + t("yunHexagram") + " " + snapshot.yearHexagram.yunHexagram);
     setText(
       "hexagramCycle",
-      "皇极经世：" + snapshot.yearHexagram.hui + "会 · " + snapshot.yearHexagram.yun + "运 · " + snapshot.yearHexagram.shi + "世 · 第" + snapshot.yearHexagram.yearInShi + "年"
+      t("huangjiPrefix") + snapshot.yearHexagram.hui + t("huiUnit") + " · " + snapshot.yearHexagram.yun + t("yunUnit") + " · " + snapshot.yearHexagram.shi + t("shiUnit") + " · " + t("yearInShiPrefix") + snapshot.yearHexagram.yearInShi + t("yearInShiSuffix")
     );
-    emperorCard.textContent = snapshot.reign.title;
-    setText("emperorEraCard", snapshot.dynasty.label + " · " + snapshot.reign.subtitle);
+    var tr = translateReign(snapshot);
+    emperorCard.textContent = tr.title;
+    setText("emperorEraCard", tr.dynastyLabel + " · " + tr.subtitle);
     setText("emperorNoteCard", getDisplayNote(snapshot.reign.note));
-    renderEmperorDetail(getEmperorDetail(snapshot));
+    renderEmperorDetail(getEmperorDetail(snapshot), tr);
     setText("monthTitle", snapshot.monthTitle);
-    setText("lunarYearTitle", snapshot.lunar.yearName + "年（" + snapshot.lunar.relatedYear + "）");
+    setText("lunarYearTitle", snapshot.lunar.yearName + t("yearSuffix") + "（" + snapshot.lunar.relatedYear + "）");
     applyTheme(snapshot);
 
     renderPillars(snapshot);
@@ -4356,26 +4478,35 @@
     }
   });
 
+  function openModal(modal) { modal.classList.remove("hidden"); modal.setAttribute("aria-hidden", "false"); }
+  function closeModal(modal) { modal.classList.add("hidden"); modal.setAttribute("aria-hidden", "true"); }
+
+  document.getElementById("aboutBtn").addEventListener("click", function () { openModal(aboutModal); });
+  document.getElementById("closeAboutModal").addEventListener("click", function () { closeModal(aboutModal); });
+  aboutModal.addEventListener("click", function (e) { if (e.target.matches("[data-close-about='true']")) closeModal(aboutModal); });
+
+  document.getElementById("copyWalletBtn").addEventListener("click", function () {
+    var addr = document.getElementById("walletAddr").textContent;
+    navigator.clipboard.writeText(addr).then(function () {
+      var btn = document.getElementById("copyWalletBtn");
+      var orig = btn.textContent;
+      btn.textContent = "✓";
+      setTimeout(function () { btn.textContent = orig; }, 1500);
+    });
+  });
+
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       closeDateNavModal();
       closeLunarMonthsModal();
       closeHexagramModal();
       closeEmperorModal();
+      closeModal(aboutModal);
     }
   });
 
-  jumpBtn.addEventListener("click", applyFormToState);
   todayBtn.addEventListener("click", function () {
     setStateFromDate(new Date());
-  });
-
-  document.querySelector(".stepper-row").addEventListener("click", function (event) {
-    const button = event.target.closest("button[data-step]");
-    if (!button) {
-      return;
-    }
-    shiftDate(button.dataset.step, Number(button.dataset.amount));
   });
 
   monthGrid.addEventListener("click", function (event) {
@@ -4392,14 +4523,93 @@
     render();
   });
 
-  [eraSelect, yearInput, monthInput, dayInput].forEach((element) => {
+  var _inputDebounce = null;
+  eraSelect.addEventListener("change", applyFormToState);
+  [yearInput, monthInput, dayInput].forEach(function (element) {
+    element.addEventListener("input", function () {
+      clearTimeout(_inputDebounce);
+      _inputDebounce = setTimeout(applyFormToState, 400);
+    });
+    element.addEventListener("change", function () {
+      clearTimeout(_inputDebounce);
+      applyFormToState();
+    });
     element.addEventListener("keydown", function (event) {
       if (event.key === "Enter") {
+        clearTimeout(_inputDebounce);
         applyFormToState();
       }
     });
   });
 
+  (function setupSwipe() {
+    var shell = document.querySelector(".shell");
+    var startX = 0;
+    var startY = 0;
+    var swiping = false;
+
+    function isModalOpen() {
+      return !dateNavModal.classList.contains("hidden") ||
+        !hexagramModal.classList.contains("hidden") ||
+        !emperorModal.classList.contains("hidden") ||
+        !lunarMonthsModal.classList.contains("hidden");
+    }
+
+    shell.addEventListener("touchstart", function (e) {
+      if (isModalOpen()) return;
+      startX = e.changedTouches[0].clientX;
+      startY = e.changedTouches[0].clientY;
+      swiping = true;
+    }, { passive: true });
+
+    shell.addEventListener("touchend", function (e) {
+      if (!swiping || isModalOpen()) return;
+      swiping = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      var dy = e.changedTouches[0].clientY - startY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        var direction = dx > 0 ? -1 : 1;
+        shiftDate("day", direction);
+        shell.classList.add(direction > 0 ? "swipe-left" : "swipe-right");
+        shell.addEventListener("animationend", function handler() {
+          shell.classList.remove("swipe-left", "swipe-right");
+          shell.removeEventListener("animationend", handler);
+        });
+      }
+    }, { passive: true });
+  })();
+
+  if (localeTrigger && localePanel) {
+    localeTrigger.addEventListener("click", function (e) {
+      e.stopPropagation();
+      localePanel.classList.toggle("hidden");
+    });
+    document.addEventListener("click", function (e) {
+      if (!localePanel.contains(e.target) && e.target !== localeTrigger) {
+        localePanel.classList.add("hidden");
+      }
+    });
+  }
+  if (countryOptions) {
+    countryOptions.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-country]");
+      if (!btn) return;
+      countryOptions.querySelectorAll(".locale-opt").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      switchCountry(btn.dataset.country);
+    });
+  }
+  if (langOptions) {
+    langOptions.addEventListener("click", function (e) {
+      var btn = e.target.closest("[data-lang]");
+      if (!btn) return;
+      langOptions.querySelectorAll(".locale-opt").forEach(function (b) { b.classList.remove("active"); });
+      btn.classList.add("active");
+      switchLang(btn.dataset.lang);
+    });
+  }
+
+  applyI18n();
   syncForm();
   render();
 })();

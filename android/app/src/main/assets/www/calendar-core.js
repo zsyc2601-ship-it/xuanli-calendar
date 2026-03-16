@@ -141,7 +141,22 @@
     离: { keywords: "光明、文明、依附", summary: "主明丽与显现，也提醒凡光明都需所附。", reading: "让自己发光，但别忘了根基。" }
   };
   const HEXAGRAM_ORIGINALS = global.XUAN_HEXAGRAM_ORIGINALS || {};
-  const REIGN_PERIODS = [
+  var _reignConfig = {
+    minYear: -220,
+    fallback: {
+      beforeMin: { dynasty: "秦前时期", title: "暂无帝王纪年", subtitle: "朝代标示当前从秦朝起算", note: "帝王年号当前从秦始皇起开始展示。", showRuler: false },
+      notFound: { dynasty: "未知时期", title: "暂无映射", note: "该年份暂未纳入帝王纪年映射。", showRuler: false },
+      generalNote: "采用中原主线纪年；多政权并立或同年改元时，取该年主展示条目。",
+      dynastyMinYear: -201,
+      dynastyBeforeMin: { label: "汉前时期", yearText: "朝代标示从西汉起算" },
+      modernYear: 1949,
+      modernLabel: "1949 年后隐藏领导人",
+      republicYear: 1912,
+      noEraText: "未置年号",
+    }
+  };
+
+  let REIGN_PERIODS = [
     { start: -220, end: -209, dynasty: "秦", ruler: "秦始皇 嬴政", eraName: "始皇帝" },
     { start: -209, end: -206, dynasty: "秦", ruler: "秦二世 胡亥", eraName: "二世皇帝" },
     { start: -206, end: -205, dynasty: "秦", ruler: "秦王 子婴", eraName: "子婴" },
@@ -887,92 +902,102 @@
   }
 
   function getReignInfo(year) {
-    if (year < -220) {
-      return {
-        dynasty: "秦前时期",
-        title: "暂无帝王纪年",
-        subtitle: "朝代标示当前从秦朝起算",
-        note: "帝王年号当前从秦始皇起开始展示。",
-        showRuler: false,
-      };
+    var cfg = _reignConfig;
+    var fb = cfg.fallback;
+
+    if (year < cfg.minYear) {
+      return Object.assign({ subtitle: formatEraYear(year) }, fb.beforeMin);
     }
 
-    const reign = REIGN_PERIODS.filter((item) => year >= item.start && year <= item.end).at(-1);
+    var reign = REIGN_PERIODS.filter(function (item) { return year >= item.start && year <= item.end; }).at(-1);
     if (!reign) {
       return {
-        dynasty: "未知时期",
-        title: "暂无映射",
+        dynasty: fb.notFound.dynasty,
+        title: fb.notFound.title,
         subtitle: formatEraYear(year),
-        note: "该年份暂未纳入帝王纪年映射。",
+        note: fb.notFound.note,
         showRuler: false,
       };
     }
 
-    if (reign.modern && year >= 1949) {
+    if (reign.modern && year >= (fb.modernYear || 9999)) {
       return {
         dynasty: reign.dynasty,
         title: reign.dynasty,
         subtitle: formatEraYear(year),
-        note: "1949 年及以后按你的要求不显示领导人。",
+        note: fb.modernLabel || "",
         showRuler: false,
       };
     }
 
     if (reign.modern) {
+      var repYear = fb.republicYear || 1912;
       return {
         dynasty: reign.dynasty,
-        title: "民国" + (year - 1911) + "年",
+        title: reign.eraName ? reign.eraName + (year - repYear + 1) + "年" : reign.dynasty,
         subtitle: reign.dynasty,
-        note: "帝制已终结，这里只显示纪年，不显示领导人。",
+        note: fb.modernLabel || "",
         showRuler: false,
       };
     }
 
-    const regnalYear = year - reign.start + 1;
-    const eraText = reign.eraName === "未置年号" ? "未置年号 · 在位第" + regnalYear + "年" : reign.eraName + regnalYear + "年";
+    var regnalYear = year - reign.start + 1;
+    var noEra = fb.noEraText || "未置年号";
+    var tpl = fb.regnalTemplate || "{era}{year}年";
+    var noTpl = fb.noEraTemplate || (noEra + " · 在位第{year}年");
+    var eraText;
+    if (reign.eraName === noEra) {
+      eraText = noTpl.replace("{year}", regnalYear);
+    } else {
+      eraText = tpl.replace("{era}", reign.eraName).replace("{year}", regnalYear);
+    }
     return {
       dynasty: reign.dynasty,
       title: reign.ruler,
       subtitle: eraText,
-      note: "采用中原主线纪年；多政权并立或同年改元时，取该年主展示条目。",
+      note: fb.generalNote,
       eraName: reign.eraName,
-      regnalYear,
+      regnalYear: regnalYear,
       showRuler: true,
     };
   }
 
   function getDynastyInfo(year, reignInfo) {
-    if (year < -201) {
+    var fb = _reignConfig.fallback;
+
+    if (year < (fb.dynastyMinYear !== undefined ? fb.dynastyMinYear : _reignConfig.minYear)) {
+      var bm = fb.dynastyBeforeMin || fb.beforeMin;
       return {
-        label: "汉前时期",
-        yearText: "朝代标示从西汉起算",
+        label: bm.label || bm.dynasty || "",
+        yearText: bm.yearText || bm.subtitle || "",
       };
     }
 
     if (!reignInfo) {
       return {
-        label: "未知时期",
-        yearText: "暂无映射",
+        label: fb.notFound.dynasty,
+        yearText: fb.notFound.title,
       };
     }
 
-    if (year >= 1949) {
+    if (reignInfo.showRuler === false) {
       return {
         label: reignInfo.dynasty,
-        yearText: "1949 年后隐藏领导人",
+        yearText: reignInfo.subtitle || reignInfo.note || "",
       };
     }
 
-    if (year >= 1912) {
-      return {
-        label: reignInfo.dynasty,
-        yearText: "民国第 " + (year - 1911) + " 年",
-      };
+    var noEra = fb.noEraText || "未置年号";
+    var dtpl = fb.dynastyRegnalTemplate || ("{era} · 第 {year} 年");
+    var yearText;
+    if (reignInfo.eraName === noEra) {
+      yearText = noEra;
+    } else {
+      yearText = dtpl.replace("{era}", reignInfo.eraName).replace("{year}", reignInfo.regnalYear);
     }
-
     return {
       label: reignInfo.dynasty,
-      yearText: reignInfo.eraName === "未置年号" ? "未置年号" : reignInfo.eraName + " · 第 " + reignInfo.regnalYear + " 年",
+      yearText: yearText,
     };
   }
 
@@ -1159,16 +1184,29 @@
     };
   }
 
+  var _defaultReignPeriods = REIGN_PERIODS.slice();
+  var _defaultReignConfig = JSON.parse(JSON.stringify(_reignConfig));
+
   global.XuanCalendar = {
-    buildSnapshot,
-    createDate,
-    addDays,
-    addMonths,
-    daysInMonth,
-    getDisplayYearParts,
-    formatTerm,
-    getHexagramDetail,
-    getHexagramOriginalText,
+    buildSnapshot: buildSnapshot,
+    createDate: createDate,
+    addDays: addDays,
+    addMonths: addMonths,
+    daysInMonth: daysInMonth,
+    getDisplayYearParts: getDisplayYearParts,
+    formatTerm: formatTerm,
+    getHexagramDetail: getHexagramDetail,
+    getHexagramOriginalText: getHexagramOriginalText,
+    setCountryData: function (periods, config) {
+      REIGN_PERIODS = periods;
+      _reignConfig = config;
+    },
+    resetCountryData: function () {
+      REIGN_PERIODS = _defaultReignPeriods.slice();
+      _reignConfig = JSON.parse(JSON.stringify(_defaultReignConfig));
+    },
+    getReignPeriods: function () { return REIGN_PERIODS; },
+    getReignConfig: function () { return _reignConfig; },
   };
 
   if (typeof module !== "undefined" && module.exports) {
