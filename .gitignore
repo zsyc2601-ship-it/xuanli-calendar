@@ -22,3 +22,5 @@ android/local.properties
 .idea/
 *.iml
 .vscode/
+GITHUB_SECRETS.local.txt
+keystore_base64.txt
