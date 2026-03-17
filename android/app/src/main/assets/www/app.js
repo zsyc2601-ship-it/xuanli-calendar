@@ -3801,6 +3801,7 @@
   const countryOptions = document.getElementById("countryOptions");
   const langOptions = document.getElementById("langOptions");
   const aboutModal = document.getElementById("aboutModal");
+  const disclaimerModal = document.getElementById("disclaimerModal");
 
   var _countryDetailLibrary = EMPEROR_DETAIL_LIBRARY;
   var _countryDynastyLibrary = DYNASTY_DETAIL_LIBRARY;
@@ -4070,8 +4071,44 @@
       .join("");
   }
 
+  function getTranslatedDetail(key, category) {
+    var i18nMap = window.XUAN_HISTORY_I18N;
+    if (!i18nMap) return null;
+    var country = window.XuanI18n ? window.XuanI18n.getCountry() : "cn";
+    var lang = window.XuanI18n ? window.XuanI18n.getLang() : "zh";
+    var cd = i18nMap[country];
+    if (!cd || !cd[lang]) return null;
+    var dict = cd[lang][category];
+    return dict ? dict[key] : null;
+  }
+
+  function applyDetailTranslation(detail) {
+    var td = getTranslatedDetail(detail.title, "details");
+    if (!td) return detail;
+    var result = Object.assign({}, detail);
+    if (td.summary) result.summary = td.summary;
+    if (td.lifespan) result.lifespan = td.lifespan;
+    if (td.reign) result.reign = td.reign;
+    if (td.era) result.era = td.era;
+    if (td.events) result.events = td.events;
+    if (td.wars) result.wars = td.wars;
+    if (td.calamities) result.calamities = td.calamities;
+    return result;
+  }
+
   function getEmperorDetail(snapshot) {
     var na = t("noData");
+
+    if (snapshot.reign.noDetail) {
+      return {
+        title: snapshot.reign.title,
+        lifespan: na, reign: snapshot.reign.subtitle,
+        era: snapshot.dynasty.label, summary: na,
+        showRuler: false,
+        events: [na], wars: [na], calamities: [na]
+      };
+    }
+
     var detailLib = _countryDetailLibrary || EMPEROR_DETAIL_LIBRARY;
     var dynastyLib = _countryDynastyLibrary || DYNASTY_DETAIL_LIBRARY;
 
@@ -4081,10 +4118,11 @@
       detail.events = applyTimelinePeriods(detail.title, detail.events || [na], "events");
       detail.wars = applyTimelinePeriods(detail.title, detail.wars || [na], "wars");
       detail.calamities = applyTimelinePeriods(detail.title, detail.calamities || [na], "calamities");
-      return detail;
+      return applyDetailTranslation(detail);
     }
 
-    const dynastyItem = dynastyLib[snapshot.reign.dynasty];
+    var tdyn = getTranslatedDetail(snapshot.reign.dynasty, "dynastyDetails");
+    const dynastyItem = tdyn || dynastyLib[snapshot.reign.dynasty];
     if (dynastyItem) {
       return {
         title: snapshot.reign.title,
@@ -4113,10 +4151,7 @@
   }
 
   function getDisplayNote(note) {
-    if (!note || note.indexOf("不显示领导人") !== -1) {
-      return "暂无";
-    }
-    return note;
+    return note || "";
   }
 
   function normalizeDetailItem(item) {
@@ -4368,10 +4403,10 @@
       return;
     }
     lunarMonthsContainer.innerHTML = snapshot.lunarMonthSequence
+      .filter(function (item) { return item.monthText && item.monthText.indexOf("闰") !== -1; })
       .map(
         function (item) {
-          var isLeap = item.monthText && item.monthText.indexOf("闰") !== -1;
-          return '<article class="month-chip' + (isLeap ? ' leap-highlight' : '') + '">' +
+          return '<article class="month-chip leap-highlight">' +
             "<strong>" + item.monthText + "</strong>" +
             "<span>" + t("startFrom") + item.gregorianText + "</span>" +
             "</article>";
@@ -4482,8 +4517,11 @@
   function closeModal(modal) { modal.classList.add("hidden"); modal.setAttribute("aria-hidden", "true"); }
 
   document.getElementById("aboutBtn").addEventListener("click", function () { openModal(aboutModal); });
+  document.getElementById("disclaimerBtn").addEventListener("click", function () { openModal(disclaimerModal); });
   document.getElementById("closeAboutModal").addEventListener("click", function () { closeModal(aboutModal); });
+  document.getElementById("closeDisclaimerModal").addEventListener("click", function () { closeModal(disclaimerModal); });
   aboutModal.addEventListener("click", function (e) { if (e.target.matches("[data-close-about='true']")) closeModal(aboutModal); });
+  disclaimerModal.addEventListener("click", function (e) { if (e.target.matches("[data-close-disclaimer='true']")) closeModal(disclaimerModal); });
 
   document.getElementById("copyWalletBtn").addEventListener("click", function () {
     var addr = document.getElementById("walletAddr").textContent;
@@ -4502,6 +4540,7 @@
       closeHexagramModal();
       closeEmperorModal();
       closeModal(aboutModal);
+      closeModal(disclaimerModal);
     }
   });
 

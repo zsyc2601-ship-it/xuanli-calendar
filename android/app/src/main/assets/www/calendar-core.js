@@ -149,9 +149,6 @@
       generalNote: "采用中原主线纪年；多政权并立或同年改元时，取该年主展示条目。",
       dynastyMinYear: -201,
       dynastyBeforeMin: { label: "汉前时期", yearText: "朝代标示从西汉起算" },
-      modernYear: 1949,
-      modernLabel: "1949 年后隐藏领导人",
-      republicYear: 1912,
       noEraText: "未置年号",
     }
   };
@@ -506,8 +503,8 @@
     { start: 1862, end: 1874, dynasty: "清", ruler: "清穆宗 载淳", eraName: "同治" },
     { start: 1875, end: 1908, dynasty: "清", ruler: "清德宗 载湉", eraName: "光绪" },
     { start: 1909, end: 1911, dynasty: "清", ruler: "清宣统帝 溥仪", eraName: "宣统" },
-    { start: 1912, end: 1948, dynasty: "中华民国", ruler: "", eraName: "民国", hideRuler: true, modern: true },
-    { start: 1949, end: 99999, dynasty: "中华人民共和国", ruler: "", eraName: "", hideRuler: true, modern: true },
+    { start: 1912, end: 1948, dynasty: "中华民国", ruler: "中华民国", eraName: "民国" },
+    { start: 1949, end: 99999, dynasty: "中华人民共和国", ruler: "中华人民共和国", eraName: "公元", noDetail: true, absoluteYear: true },
   ];
   const TRIGRAM_LINES = {
     乾: [1, 1, 1],
@@ -920,28 +917,7 @@
       };
     }
 
-    if (reign.modern && year >= (fb.modernYear || 9999)) {
-      return {
-        dynasty: reign.dynasty,
-        title: reign.dynasty,
-        subtitle: formatEraYear(year),
-        note: fb.modernLabel || "",
-        showRuler: false,
-      };
-    }
-
-    if (reign.modern) {
-      var repYear = fb.republicYear || 1912;
-      return {
-        dynasty: reign.dynasty,
-        title: reign.eraName ? reign.eraName + (year - repYear + 1) + "年" : reign.dynasty,
-        subtitle: reign.dynasty,
-        note: fb.modernLabel || "",
-        showRuler: false,
-      };
-    }
-
-    var regnalYear = year - reign.start + 1;
+    var regnalYear = reign.absoluteYear ? year : (year - reign.start + 1);
     var noEra = fb.noEraText || "未置年号";
     var tpl = fb.regnalTemplate || "{era}{year}年";
     var noTpl = fb.noEraTemplate || (noEra + " · 在位第{year}年");
@@ -959,6 +935,7 @@
       eraName: reign.eraName,
       regnalYear: regnalYear,
       showRuler: true,
+      noDetail: !!reign.noDetail,
     };
   }
 

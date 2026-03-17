@@ -1,45 +1,97 @@
-# 玄历
+# 玄历 · Xuan Calendar
 
-一个纯前端的历法原型，支持：
+An open-source Ganzhi (Heavenly Stems & Earthly Branches) calendar app that combines traditional Chinese calendrics with multi-national historical timelines.
 
-- 阳历 / 农历 / 干支四柱
-- 生肖与生肖图标（按立春换岁）
-- 节气
-- 当前或指定日期的时柱
-- 西方星座与图标
-- 值年卦（可点开看卦象、卦辞、彖辞、象辞）
-- 公元 / 公元前年份切换
-- 朝代标示（从汉朝开始）
-- 帝王 / 年号纪年（可点开帝王详情）
-- 农历闰月与农历月份结构展示
+一款开源的干支历法工具，融合中国传统历法、皇极经世卦象与多国历史纪年。
 
-## 运行
+## Screenshots
+
+<p>
+  <img src="screenshots/01-home-cn.jpg" width="200" />
+  <img src="screenshots/02-home-en.jpg" width="200" />
+  <img src="screenshots/03-home-jp.jpg" width="200" />
+  <img src="screenshots/04-about-en.jpg" width="200" />
+</p>
+
+## Features
+
+- **Ganzhi Four Pillars** (四柱) — Year, month, day, hour pillars based on Lichun and Jieqi
+- **Lunar Calendar** (农历) — Powered by browser `Intl` API with leap month detection
+- **24 Solar Terms** (节气) — Current and next term display
+- **Yearly Hexagram** (值年卦) — Based on Huangji Jingshi cycle, with full I Ching text (卦辞/彖辞/象辞)
+- **Chinese Zodiac & Western Astrology** — Zodiac by Lichun, constellation by date
+- **Multi-National History** — China (秦–present), USA (1789–present), UK (1066–present), Japan (794–present)
+- **Trilingual UI** — Chinese 中文 / English / 日本語, switchable independently from country
+- **Swipe Navigation** — Swipe left/right to change days
+- **Leap Month Display** — Shows only the leap month when present
+- **Disclaimer & About** — Built-in legal disclaimer, donation info, open-source link
+
+## Supported Countries & History
+
+| Country | Period | Content |
+|---------|--------|---------|
+| 🇨🇳 China | 221 BCE – present | Emperors, dynasties, era names |
+| 🇺🇸 USA | 1789 – present | All 47 presidents, political eras |
+| 🇬🇧 UK | 1066 – present | All monarchs, royal houses |
+| 🇯🇵 Japan | 794 – present | Emperors, shoguns, modern era |
+
+## Run Locally
 
 ```bash
 python3 -m http.server 8000
+# Open http://localhost:8000
 ```
 
-然后访问 `http://localhost:8000`
+## Build Android APK
 
-## 当前规则
+```bash
+cd android
+ANDROID_HOME=/path/to/android-sdk gradle assembleRelease
+```
 
-- 年柱：按 `立春` 切换
-- 月柱：按 `节气` 切换
-- 日柱 / 时柱：按 `23:00` 后子初换日
-- 农历：使用浏览器内建 `Intl` 中文农历能力
-- 值年卦：按 `皇极经世` 的会 / 运 / 世 / 年序列推算
-- 朝代：做展示型映射，从 `西汉` 起标示
-- 帝王纪年：按中原主线展示皇帝与年号；
+The signed APK will be copied to the project root as `xuanli-v{version}-release-signed.apk`.
 
-## 文件
+To build with your own signing key, create `keystore.properties` in the project root:
 
-- `index.html`：页面结构
-- `styles.css`：界面样式
-- `calendar-core.js`：历法、节气、干支、值年卦、朝代逻辑
-- `app.js`：交互与渲染
+```properties
+storeFile=your-keystore.jks
+storePassword=your-password
+keyAlias=your-alias
+keyPassword=your-password
+```
 
-## 说明
+## Project Structure
 
-古代年份部分采用现代公历、现代农历规则回推，用来做展示和研究没问题，但它不等同于逐朝代的官方实历复原。
+```
+index.html              — Page structure
+styles.css              — UI styles with Five Elements themes
+calendar-core.js        — Calendar engine (Ganzhi, lunar, solar terms, hexagram, reign)
+app.js                  — Rendering, i18n integration, interaction
+i18n.js                 — Trilingual UI translations
+hexagram-originals.js   — I Ching original texts (卦辞/彖辞/象辞)
+hexagram-i18n.js        — Hexagram translations (EN/JA)
+history-us.js           — US presidential history
+history-uk.js           — UK monarchical history
+history-jp.js           — Japanese imperial/shogunate history
+history-i18n.js         — Cross-language history translations
+android/                — Android WebView wrapper
+```
 
-卦辞 / 彖辞 / 象辞 当前优先从外部公开文本源按需加载；如果外部源不可用，页面会退回到本地卦意摘要。
+## Calendar Rules
+
+- **Year Pillar**: switches at Lichun (立春)
+- **Month Pillar**: switches at Jieqi (节气)
+- **Day/Hour Pillar**: switches at 23:00 (子初)
+- **Lunar Calendar**: via browser `Intl.DateTimeFormat` with Chinese lunar calendar
+- **Yearly Hexagram**: Huangji Jingshi (皇极经世) cycle of Hui/Yun/Shi/Year
+- **Reign Periods**: follows the Central Plains main line for Chinese history
+
+## Donate
+
+If Xuan Calendar is useful to you, consider supporting development:
+
+**USDT (TRC20):** `TAeABo9shh83RpYWw1PkrdZEFaSHDUYKLk`
+
+## License
+
+Open source. See the app's built-in disclaimer for usage terms.

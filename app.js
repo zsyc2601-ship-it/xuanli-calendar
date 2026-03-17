@@ -4098,6 +4098,17 @@
 
   function getEmperorDetail(snapshot) {
     var na = t("noData");
+
+    if (snapshot.reign.noDetail) {
+      return {
+        title: snapshot.reign.title,
+        lifespan: na, reign: snapshot.reign.subtitle,
+        era: snapshot.dynasty.label, summary: na,
+        showRuler: false,
+        events: [na], wars: [na], calamities: [na]
+      };
+    }
+
     var detailLib = _countryDetailLibrary || EMPEROR_DETAIL_LIBRARY;
     var dynastyLib = _countryDynastyLibrary || DYNASTY_DETAIL_LIBRARY;
 
@@ -4140,10 +4151,7 @@
   }
 
   function getDisplayNote(note) {
-    if (!note || note.indexOf("不显示领导人") !== -1) {
-      return "暂无";
-    }
-    return note;
+    return note || "";
   }
 
   function normalizeDetailItem(item) {
@@ -4395,10 +4403,10 @@
       return;
     }
     lunarMonthsContainer.innerHTML = snapshot.lunarMonthSequence
+      .filter(function (item) { return item.monthText && item.monthText.indexOf("闰") !== -1; })
       .map(
         function (item) {
-          var isLeap = item.monthText && item.monthText.indexOf("闰") !== -1;
-          return '<article class="month-chip' + (isLeap ? ' leap-highlight' : '') + '">' +
+          return '<article class="month-chip leap-highlight">' +
             "<strong>" + item.monthText + "</strong>" +
             "<span>" + t("startFrom") + item.gregorianText + "</span>" +
             "</article>";

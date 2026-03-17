@@ -79,13 +79,9 @@
 
       <footer class="app-footer">
         <button id="aboutBtn" class="footer-link" type="button" data-i18n="aboutUs">关于我们</button>
+        <span class="footer-dot">·</span>
+        <button id="disclaimerBtn" class="footer-link" type="button" data-i18n="disclaimer">免责声明</button>
       </footer>
-
-      <section class="disclaimer-inline">
-        <p class="disclaimer-text" data-i18n="disclaimerText1">本应用提供的干支历法、农历、节气、卦象及历史纪年信息仅供文化学习与参考之用，不构成任何形式的决策建议。</p>
-        <p class="disclaimer-text" data-i18n="disclaimerText3">卦象解读基于《周易》传统，仅为文化参考，不应作为医疗、投资、法律等专业领域的依据。</p>
-        <p class="disclaimer-text" data-i18n="disclaimerText5">使用本应用即表示您理解并同意以上条款。开发者不对因使用本应用产生的任何后果承担责任。</p>
-      </section>
     </main>
 
     <div id="aboutModal" class="modal hidden" aria-hidden="true">
@@ -96,15 +92,33 @@
         <h2>玄历 · Xuan Calendar</h2>
         <div class="about-body">
           <p class="muted" data-i18n="aboutDesc">玄历是一款开源的干支历法工具，融合中国传统历法、皇极经世卦象与多国历史纪年，帮助用户在日期与时间中发现更深层的文化脉络。</p>
-          <div class="text-card about-donate">
-            <h3 data-i18n="donateTitle">支持开发</h3>
-            <p class="muted" data-i18n="donateDesc">如果玄历对你有帮助，欢迎通过以下方式支持我们持续开发：</p>
-            <p class="donate-addr"><span class="donate-label">USDT (TRC20):</span><code id="walletAddr">TAeABo9shh83RpYWw1PkrdZEFaSHDUYKLk</code><button class="copy-btn" id="copyWalletBtn" type="button" data-i18n="copy">复制</button></p>
+          <div class="about-cards">
+            <div class="text-card">
+              <h3 data-i18n="donateTitle">支持开发</h3>
+              <p class="muted" data-i18n="donateDesc">如果玄历对你有帮助，欢迎通过以下方式支持我们持续开发：</p>
+              <p class="donate-addr"><span class="donate-label">USDT (TRC20):</span><code id="walletAddr">TAeABo9shh83RpYWw1PkrdZEFaSHDUYKLk</code><button class="copy-btn" id="copyWalletBtn" type="button" data-i18n="copy">复制</button></p>
+            </div>
+            <div class="text-card">
+              <h3 data-i18n="openSource">开源</h3>
+              <p class="muted">GitHub: <a href="https://github.com/zsyc2601-ship-it/xuanli-calendar" target="_blank" rel="noopener">xuanli-calendar</a></p>
+            </div>
           </div>
-          <div class="text-card">
-            <h3 data-i18n="openSource">开源</h3>
-            <p class="muted">GitHub: <a href="https://github.com/AerfaDr/xuanli-calendar" target="_blank" rel="noopener">xuanli-calendar</a></p>
-          </div>
+        </div>
+      </section>
+    </div>
+
+    <div id="disclaimerModal" class="modal hidden" aria-hidden="true">
+      <div class="modal-backdrop" data-close-disclaimer="true"></div>
+      <section class="modal-panel" role="dialog" aria-modal="true">
+        <button id="closeDisclaimerModal" class="modal-close" type="button" aria-label="关闭" data-i18n="close">关闭</button>
+        <p class="section-tag" data-i18n="disclaimer">免责声明</p>
+        <h2 data-i18n="disclaimerTitle">免责声明</h2>
+        <div class="about-body">
+          <p class="muted" data-i18n="disclaimerText1">本应用提供的干支历法、农历、节气、卦象及历史纪年信息仅供文化学习与参考之用，不构成任何形式的决策建议。</p>
+          <p class="muted" data-i18n="disclaimerText2">古代年份的农历与节气采用现代天文历法回推，与古代实历可能存在偏差。帝王纪年采用中原主线展示，不代表对历史的完整复原。</p>
+          <p class="muted" data-i18n="disclaimerText3">卦象解读基于《周易》传统，仅为文化参考，不应作为医疗、投资、法律等专业领域的依据。</p>
+          <p class="muted" data-i18n="disclaimerText4">外国历史数据尽力确保准确，但简化展示可能遗漏细节。如有错误欢迎在 GitHub 提交反馈。</p>
+          <p class="muted" data-i18n="disclaimerText5">使用本应用即表示您理解并同意以上条款。开发者不对因使用本应用产生的任何后果承担责任。</p>
         </div>
       </section>
     </div>
