@@ -1,8 +1,16 @@
 # 玄历 · Xuan Calendar
 
-An open-source Ganzhi (Heavenly Stems & Earthly Branches) calendar app that combines traditional Chinese calendrics with multi-national historical timelines.
+**240KB. No ads. No subscription. No tracking.**
+
+市面上的日历 App 动辄几十上百 MB，塞满广告、付费墙和后台常驻。玄历不一样——整个 APK 仅 **240KB**，无广告、无内购、无网络依赖、无后台进程，装上即用，完全开源。
+
+Most calendar apps are bloated with ads, paywalls, and background services. Xuan Calendar is different — the entire APK is only **240KB**, with zero ads, zero in-app purchases, zero network dependency, and zero background processes. Install and use. Fully open source.
+
+---
 
 一款开源的干支历法工具，融合中国传统历法、皇极经世卦象与多国历史纪年。
+
+An open-source Ganzhi (Heavenly Stems & Earthly Branches) calendar app that combines traditional Chinese calendrics with multi-national historical timelines.
 
 ## Screenshots
 
@@ -12,6 +20,18 @@ An open-source Ganzhi (Heavenly Stems & Earthly Branches) calendar app that comb
   <img src="screenshots/03-home-jp.jpg" width="200" />
   <img src="screenshots/04-about-en.jpg" width="200" />
 </p>
+
+## Why Xuan Calendar?
+
+| | Other Calendar Apps | Xuan Calendar |
+|---|---|---|
+| Size | 50–200 MB | **240 KB** |
+| Ads | Everywhere | **None** |
+| Subscription | Required for basics | **Free forever** |
+| Network | Required | **Fully offline** |
+| Background | Always running | **Zero** |
+| Privacy | Tracks everything | **No data collected** |
+| Source | Closed | **Open source** |
 
 ## Features
 
