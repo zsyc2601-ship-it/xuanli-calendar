@@ -1726,26 +1726,23 @@ body[data-element-theme="earth"][data-earth-variant="xu"] .stat-card {
   font-size: 0.7rem;
 }
 
-.disclaimer-inline {
-  padding: 16px 0 0;
-  opacity: 0.5;
-}
-
-.disclaimer-text {
-  margin: 0 0 4px;
-  font-size: 0.72rem;
-  line-height: 1.7;
-  color: var(--ink-soft);
-  text-align: center;
-}
-
 .about-body {
   margin-top: 16px;
 }
 
-.about-body p {
+.about-body > p {
   line-height: 1.85;
   margin: 0 0 12px;
+}
+
+.about-cards {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.about-cards .text-card {
+  width: 100%;
 }
 
 .about-donate {
